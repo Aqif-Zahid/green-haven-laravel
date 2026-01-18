@@ -11,7 +11,6 @@ class ProductController extends Controller
 {
     private function normalizeImages($images): array
     {
-        // Ensure we always return a flat array of strings
         $result = [];
 
         foreach ((array) ($images ?? []) as $img) {
@@ -24,7 +23,6 @@ class ProductController extends Controller
                 continue;
             }
 
-            // If the element itself is a JSON array string like '["test.jpg"]'
             if (str_starts_with($v, '[') && str_ends_with($v, ']')) {
                 $decoded = json_decode($v, true);
 
@@ -41,7 +39,6 @@ class ProductController extends Controller
             $result[] = $v;
         }
 
-        // Remove dummy values like test.jpg (even if path contains it)
         $result = array_values(array_filter($result, function ($s) {
             $v = strtolower(trim($s));
             if ($v === '') return false;
