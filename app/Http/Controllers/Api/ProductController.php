@@ -39,6 +39,7 @@ class ProductController extends Controller
             $result[] = $v;
         }
 
+        // Remove dummy values
         $result = array_values(array_filter($result, function ($s) {
             $v = strtolower(trim($s));
             if ($v === '') return false;
