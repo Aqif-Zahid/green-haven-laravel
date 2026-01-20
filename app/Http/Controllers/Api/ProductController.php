@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Product\IndexProductsRequest;
+use App\Http\Requests\Product\ShowProductRequest;
+use App\Http\Requests\Product\StoreProductRequest;
 use App\Models\Product;
-use Illuminate\Http\Request;
 use App\Helpers\ApiResponse;
 
 class ProductController extends Controller
@@ -50,7 +52,7 @@ class ProductController extends Controller
         return $result;
     }
 
-    public function index(Request $request)
+    public function index(IndexProductsRequest $request)
     {
         $category = $request->query('category');
 
@@ -70,31 +72,20 @@ class ProductController extends Controller
         return ApiResponse::success('Products fetched successfully.', $products);
     }
 
-    public function show(string $id)
+    public function show(ShowProductRequest $request)
     {
-        $product = Product::with('user')->find($id);
+        $id = (string) $request->validated('id');
 
-        if (!$product) {
-            return ApiResponse::error('Product not found.', 404);
-        }
+        $product = Product::with('user')->find($id);
 
         $product->images = $this->normalizeImages($product->images);
 
         return ApiResponse::success('Product fetched successfully.', $product);
     }
 
-    public function store(Request $request)
+    public function store(StoreProductRequest $request)
     {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'quantity' => ['required', 'integer', 'min:0'],
-            'small_description' => ['required', 'string', 'max:500'],
-            'description' => ['nullable'],
-            'images' => ['required', 'array', 'min:1'],
-            'images.*' => ['string'],
-            'category' => ['required', 'in:plants,accessories,flowers'],
-        ]);
+        $data = $request->validated();
 
         $product = Product::create([
             ...$data,

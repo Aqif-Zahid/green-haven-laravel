@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Order\CheckoutOrderRequest;
+use App\Http\Requests\Order\StoreOrderRequest;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -11,12 +13,9 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function store(Request $request)
+    public function store(StoreOrderRequest $request)
     {
-        $data = $request->validate([
-            'product_id' => ['required', 'exists:products,id'],
-            'quantity' => ['required', 'integer', 'min:1'],
-        ]);
+        $data = $request->validated();
 
         $product = Product::findOrFail($data['product_id']);
 
@@ -56,11 +55,9 @@ class OrderController extends Controller
         return ApiResponse::success('Orders fetched successfully.', $orders);
     }
 
-    public function checkout(Request $request, string $order)
+    public function checkout(CheckoutOrderRequest $request, string $order)
     {
-        $data = $request->validate([
-            'delivery_address' => ['required', 'string', 'max:500'],
-        ]);
+        $data = $request->validated();
 
         $orderModel = Order::where('id', $order)
             ->where('user_id', $request->user()->id)
